@@ -16,18 +16,19 @@ y = []
 
 def load_database():
     global iris
-    iris = datasets.load_iris()
-    print(iris.target_names)
-    print(iris.feature_names)
-    print(iris.data[0:5])
-    print(iris.target)
+    iris_data = datasets.load_iris()
+    print(iris_data)
+    print(iris_data.target_names)
+    print(iris_data.feature_names)
+    print(iris_data.data[0:5])
+    print(iris_data.target)
     iris = pd.DataFrame(
         {
-            "sepal length": iris.data[:, 0],
-            "sepal width": iris.data[:, 1],
-            "petal length": iris.data[:, 2],
-            "petal width": iris.data[:, 3],
-            "species": iris.target,
+            "sepal length": iris_data.data[:, 0],
+            "sepal width": iris_data.data[:, 1],
+            "petal length": iris_data.data[:, 2],
+            "petal width": iris_data.data[:, 3],
+            "species": iris_data.target,
         }
     )
     print(iris)
@@ -35,6 +36,7 @@ def load_database():
 
 # 2. getting sum simple summary statistics (mean, min, max) using numpy
 def numpy_statistics():
+    global iris
     n_array = iris.to_numpy()
     print(n_array)
     mean_value = n_array.mean(axis=0)
@@ -50,6 +52,7 @@ def numpy_statistics():
 
 
 def plot_graphs():
+    global iris
     histogram = px.histogram(iris, x="petal length")
     histogram.show()
 
@@ -74,6 +77,7 @@ def plot_graphs():
 # 4. standardscaler transformer using sk learn
 def standardization():
     global x_scaled
+    global iris
     s = iris.iloc[:, [0, 1, 2, 3]]
     s.head()
     scaler = StandardScaler().fit(s)
