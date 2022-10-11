@@ -3,4 +3,5 @@ pandas
 plotly
 sklearn
 mariadb
-SQLAlchemy
+pyspark
+pyspark-stubs
