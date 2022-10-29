@@ -1,12 +1,13 @@
-import sys
 import os
 import warnings
-import plotly.express as px
+from os.path import abspath, dirname, join
+
 import numpy as np
 import pandas as pd
-from plotly import graph_objects as go
+import plotly.express as px
 import scipy.stats as stats
-from os.path import abspath, dirname, join
+from plotly import graph_objects as go
+
 
 # to create links of the plots
 def make_clickable(val):
@@ -40,7 +41,9 @@ def main():
         print("The new directory is created!")
 
     # fetch data from website
-    input_file = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv"
+    input_file = (
+        "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv"
+    )
 
     # convert csv data into pandas dataframe
     df = pd.read_csv(input_file)
@@ -65,13 +68,11 @@ def main():
     # identify and create the list of categorical and continuous data predictors
     for predictor in predictors:
         if len(pd.unique(df[predictor])) >= 10 and df[predictor].dtype == float:
-            _isCat = False
             print(predictor + " variable is continuous")
             continuous_predictors.append(predictor)
             df[predictor].fillna(df[predictor].mean(), inplace=True)
         else:
             print(predictor + " variable is categorical")
-            _isCat = True
             categorical_predictors.append(predictor)
 
     # making a list of predictor types
@@ -85,7 +86,6 @@ def main():
     # assign response types
     if len(pd.unique(df[response])) <= 5:
         print("Response variable is boolean")
-        _isBool = True
         type_of_response.append("categorical_response")
     else:
         type_of_response.append("continuous_response")
@@ -98,7 +98,12 @@ def main():
         for x in categorical_predictors:
             for y in categorical_predictors:
                 if x != y:
-                    corr = cat_cat_correlationelation(df[x], df[y], bias_correction=True, tschuprow=False, )
+                    corr = cat_cat_correlationelation(
+                        df[x],
+                        df[y],
+                        bias_correction=True,
+                        tschuprow=False,
+                    )
                     # print(corr)
                     cat_cat_correlation.append(corr)
 
@@ -113,7 +118,10 @@ def main():
                     path = join(dirname(abspath(__file__)), "midterm_html", name)
 
                     count += 1
-                    heatmap_plot.write_html(path, include_plotlyjs="cdn", )
+                    heatmap_plot.write_html(
+                        path,
+                        include_plotlyjs="cdn",
+                    )
                     heatmap_plots_links.append("file://" + path)
                     x_categorical_categorical.append(x)
                     y_categorical_categorical.append(y)
@@ -130,7 +138,9 @@ def main():
 
         cat_cat_correlation_table.style.format({"link_plot": make_clickable})
         # Put values in tables ordered DESC by correlation metric
-        cat_cat_correlation_table.sort_values(by=["Absolute_value_correlation"], inplace=True, ascending=False)
+        cat_cat_correlation_table.sort_values(
+            by=["Absolute_value_correlation"], inplace=True, ascending=False
+        )
 
         # creating cat-cat correlation heatmap
         cat_cat_correlation_plot = go.Figure(
@@ -145,8 +155,13 @@ def main():
             xaxis_title="cat_var1",
             yaxis_title="cat_var2",
         )
-        path = join(dirname(abspath(__file__)), "midterm_html", "cat_cat_correlation_plot.html")
-        cat_cat_correlation_plot.write_html(path, include_plotlyjs="cdn", )
+        path = join(
+            dirname(abspath(__file__)), "midterm_html", "cat_cat_correlation_plot.html"
+        )
+        cat_cat_correlation_plot.write_html(
+            path,
+            include_plotlyjs="cdn",
+        )
 
     # code for categorical_continuous correlation
     count = 0
@@ -169,7 +184,10 @@ def main():
                 violin_plots_links.append("file://" + path)
 
                 # creating a cat-cat correlation table
-                violin_plot.write_html(path, include_plotlyjs="cdn", )
+                violin_plot.write_html(
+                    path,
+                    include_plotlyjs="cdn",
+                )
 
         cat_cont_correlation_table = pd.DataFrame(
             columns=["cont_var", "cat_var", "Absolute_value_correlation", "link_plot"]
@@ -197,8 +215,13 @@ def main():
             xaxis_title="cat_var",
             yaxis_title="cont_var",
         )
-        path = join(dirname(abspath(__file__)), "midterm_html", "cat_cont_correlation_plot.html")
-        cat_cont_correlation_plot.write_html(path, include_plotlyjs="cdn", )
+        path = join(
+            dirname(abspath(__file__)), "midterm_html", "cat_cont_correlation_plot.html"
+        )
+        cat_cont_correlation_plot.write_html(
+            path,
+            include_plotlyjs="cdn",
+        )
 
     # code for continuous continuous predictors
     count = 0
@@ -222,7 +245,10 @@ def main():
                     # fig.show()
                     name = "linear_regression_" + str(count) + ".html"
                     path = join(dirname(abspath(__file__)), "midterm_html", name)
-                    fig.write_html(path, include_plotlyjs="cdn", )
+                    fig.write_html(
+                        path,
+                        include_plotlyjs="cdn",
+                    )
                     count += 1
                     linear_regression_plots.append("file://" + path)
 
@@ -251,9 +277,15 @@ def main():
             xaxis_title="cont_var1",
             yaxis_title="cont_var1",
         )
-        path = join(dirname(abspath(__file__)), "midterm_html", "cont_cont_correlation_plot.html")
-        cont_cont_correlation_plot.write_html(path, include_plotlyjs="cdn", )
-
+        path = join(
+            dirname(abspath(__file__)),
+            "midterm_html",
+            "cont_cont_correlation_plot.html",
+        )
+        cont_cont_correlation_plot.write_html(
+            path,
+            include_plotlyjs="cdn",
+        )
 
     # brute-force table
     # cat-cat
@@ -262,15 +294,17 @@ def main():
 
     # cont-cont
 
-
     # adding all the tables and plots on single html page
-    with open("final.html", 'w+') as file:
+    with open("final.html", "w+") as file:
         file.write(
-            cat_cat_correlation_table.to_html(render_links=True) + "\n\n"
+            cat_cat_correlation_table.to_html(render_links=True)
+            + "\n\n"
             + cat_cat_correlation_plot.to_html()
-            + cat_cont_correlation_table.to_html(render_links=True) + "\n\n"
+            + cat_cont_correlation_table.to_html(render_links=True)
+            + "\n\n"
             + cat_cont_correlation_plot.to_html()
-            + cont_cont_correlation_table.to_html(render_links=True) + "\n\n"
+            + cont_cont_correlation_table.to_html(render_links=True)
+            + "\n\n"
             + cont_cont_correlation_plot.to_html()
         )
 
@@ -283,6 +317,7 @@ def fill_na(data):
 
 
 # code for cat_cat correlation taken from lecture notes
+
 
 def cat_cat_correlationelation(x, y, bias_correction=True, tschuprow=False):
     corr_coeff = np.nan
@@ -332,6 +367,7 @@ def cat_cat_correlationelation(x, y, bias_correction=True, tschuprow=False):
 
 # code for cat_cont correlation taken from lecture notes
 
+
 def cat_cont_correlationelation_ratio(categories, values):
     #     Correlation Ratio: https://en.wikipedia.org/wiki/Correlation_ratio
     #     SOURCE:
@@ -351,9 +387,7 @@ def cat_cont_correlationelation_ratio(categories, values):
         y_avg_array[i] = np.average(cat_measures)
     y_total_avg = np.sum(np.multiply(y_avg_array, n_array)) / np.sum(n_array)
     numerator = np.sum(
-        np.multiply(
-            n_array, np.power(np.subtract(y_avg_array, y_total_avg), 2)
-        )
+        np.multiply(n_array, np.power(np.subtract(y_avg_array, y_total_avg), 2))
     )
     denominator = np.sum(np.power(np.subtract(values, y_total_avg), 2))
     if numerator == 0:
