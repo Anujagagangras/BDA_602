@@ -5,3 +5,5 @@ sklearn
 mariadb
 pyspark
 pyspark-stubs
+plotly.express
+statsmodels
