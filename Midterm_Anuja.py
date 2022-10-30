@@ -9,6 +9,46 @@ import scipy.stats as stats
 from plotly import graph_objects as go
 
 
+def brute_force(df, predictor, response, stats_table, bin_size):
+    df = df.dropna()
+    count, bins_edges = np.histogram(df[predictor], bins=bin_size)
+
+    bins_weighted_mean_diff = [0 for i in range(len(bins_edges))]
+    bins_unweighted_mean_diff = [0 for i in range(len(bins_edges))]
+    pop_mean = np.mean(df[predictor])
+    print("population mean for predictor ", predictor, " = ", pop_mean)
+
+    for i in range(len(bins_edges) - 1):
+        bin_data = df[
+            (bins_edges[i + 1] >= df[predictor]) & (bins_edges[i] < df[predictor])
+        ]
+        # step 5.Difference with mean of response along with its plot (weighted and unweighted)
+        # print(bin_data[predictor])
+        # print()
+        # weighted mean or response
+        bins_weighted_mean_diff[i] = np.square(
+            count[i] * (np.mean(bin_data[predictor]) - pop_mean)
+        )
+        # unweighted mean or response
+        bins_unweighted_mean_diff[i] = np.square(
+            (np.mean(bin_data[predictor]) - pop_mean)
+        )
+        print(
+            "for predictor ",
+            predictor,
+            "squared diff of mean for bin ",
+            i,
+            " is ",
+            bins_weighted_mean_diff[i],
+        )
+
+    print("w mean squared difference = ", np.mean(bins_weighted_mean_diff))
+    stats_table["w_mean_diff"][predictor] = np.mean(bins_weighted_mean_diff)
+    stats_table["uw_mean_diff"][predictor] = np.mean(bins_unweighted_mean_diff)
+
+    return bins_weighted_mean_diff
+
+
 # to create links of the plots
 def make_clickable(val):
     return '<a href="{}">{}</a>'.format(val, val)
@@ -198,6 +238,10 @@ def main():
         cat_cont_correlation_table["link_plot"] = violin_plots_links
 
         cat_cat_correlation_table.style.format({"link_plot": make_clickable})
+        # Put values in tables ordered DESC by correlation metric
+        cat_cont_correlation_table.sort_values(
+            by=["Absolute_value_correlation"], inplace=True, ascending=False
+        )
 
         print(cat_cont_correlation_table)
 
@@ -262,6 +306,10 @@ def main():
         cont_cont_correlation_table["pearson's_r"] = cont_cont_correlation
         cont_cont_correlation_table["link_plot"] = linear_regression_plots
         cont_cont_correlation_table.style.format({"link_plot": make_clickable})
+        # Put values in tables ordered DESC by correlation metric
+        cont_cont_correlation_table.sort_values(
+            by=["pearson's_r"], inplace=True, ascending=False
+        )
 
         print(cont_cont_correlation_table)
 
@@ -287,12 +335,34 @@ def main():
             include_plotlyjs="cdn",
         )
 
-    # brute-force table
-    # cat-cat
-
-    # cont-cat
-
+        # brute-force table
+        brute_force_plots = []
+        continuous_stats_table = pd.DataFrame(
+            index=continuous_predictors,
+            columns=["uw_mean_diff", "w_mean_diff", "link_plots"],
+        )
     # cont-cont
+    if len(continuous_predictors) > 0:
+        for x in continuous_predictors:
+            x_bins = brute_force(df, x, response, continuous_stats_table, 4)
+            for y in continuous_predictors:
+                if x != y:
+                    y_bins = brute_force(df, y, response, continuous_stats_table, 4)
+                    df_bins = pd.DataFrame({"xbin": x_bins, "ybin": y_bins})
+                    fig = px.density_heatmap(df_bins, x="xbin", y="ybin")
+                    name = "brute_force" + str(count) + ".html"
+                    path = join(dirname(abspath(__file__)), "midterm_html", name)
+                    fig.write_html(
+                        path,
+                        include_plotlyjs="cdn",
+                    )
+                    count += 1
+                    brute_force_plots.append("file://" + path)
+
+        continuous_stats_table["link_plots"] = brute_force_plots
+        continuous_stats_table.style.format({"link_plots": make_clickable})
+
+    print(continuous_stats_table)
 
     # adding all the tables and plots on single html page
     with open("final.html", "w+") as file:
@@ -306,6 +376,7 @@ def main():
             + cont_cont_correlation_table.to_html(render_links=True)
             + "\n\n"
             + cont_cont_correlation_plot.to_html()
+            + continuous_stats_table.to_html(render_links=True)
         )
 
 
@@ -366,8 +437,6 @@ def cat_cat_correlationelation(x, y, bias_correction=True, tschuprow=False):
 
 
 # code for cat_cont correlation taken from lecture notes
-
-
 def cat_cont_correlationelation_ratio(categories, values):
     #     Correlation Ratio: https://en.wikipedia.org/wiki/Correlation_ratio
     #     SOURCE:
