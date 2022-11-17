@@ -9,6 +9,8 @@ html_table = pd.DataFrame()
 stats_table = pd.DataFrame()
 
 # Step 2.Determine if response is continuous or boolean
+
+
 def check_response_type(df, response):
     if len(pd.unique(df[response])) == 2:
         print("Response variable is boolean")
@@ -17,6 +19,7 @@ def check_response_type(df, response):
         print("Response variable is continuous")
         _isBool = False
     return _isBool
+
 
 # step 3. Determine if the predictor is cat/cont
 def check_predictor_type(df, predictor):
@@ -29,12 +32,14 @@ def check_predictor_type(df, predictor):
 
     return _isCat
 
+
 # step 4. Automatically generate the necessary plot(s) to inspect it.
 # if response variable is categorical and predictor is categorical.
 def plot_bool_response_cat_predictor(df, predictor, response):
     fig = px.density_heatmap(df, x=predictor, y=response)
 
     fig.show()
+
 
 # if response variable is categorical and predictor is continous.
 def plot_bool_response_con_predictor(df, predictor, response, stats_table):
@@ -70,8 +75,8 @@ def plot_bool_response_con_predictor(df, predictor, response, stats_table):
     for i in range(len(bins_edges) - 1):
         bin_data = df[
             (bins_edges[i + 1] >= df[predictor]) & (bins_edges[i] < df[predictor])
-            ]
-# step 5.Difference with mean of response along with its plot (weighted and unweighted)
+        ]
+        # step 5.Difference with mean of response along with its plot (weighted and unweighted)
         # print(bin_data[predictor])
         # print()
         # weighted mean or response
@@ -97,8 +102,9 @@ def plot_bool_response_con_predictor(df, predictor, response, stats_table):
 
 
 # if response variable is continous and predictor is continous.
+
+
 def plot_cont_response_cont_predictor(df, predictor, response):
-    n = 200
     x = df[predictor]
     y = df[response]
 
@@ -111,6 +117,7 @@ def plot_cont_response_cont_predictor(df, predictor, response):
     fig.show()
 
     return
+
 
 # step 6. p-value & t-score (continuous predictors only) along with it's plot
 # logistic regression will work if response variable it categorical
@@ -126,7 +133,9 @@ def logistic_regression(df, predictor_name, response, stats_table):
     y = df[response].map(int)
 
     predictor = statsmodels.api.add_constant(x)
-    logistic_regression_model = statsmodels.api.Logit(np.asarray(y), np.asarray(predictor))
+    logistic_regression_model = statsmodels.api.Logit(
+        np.asarray(y), np.asarray(predictor)
+    )
     logistic_regression_model_fitted = logistic_regression_model.fit()
     t_value = round(logistic_regression_model_fitted.tvalues[1], 6)
     p_value = "{:6e}".format(logistic_regression_model_fitted.pvalues[1])
@@ -140,6 +149,7 @@ def logistic_regression(df, predictor_name, response, stats_table):
     stats_table["tvalue"][predictor_name] = t_value
     stats_table["pvalue"][predictor_name] = p_value
     print(stats_table)
+
 
 # step 6. p-value & t-score (continuous predictors only) along with it's plot
 # linear regression will work if response variable it continous
@@ -162,7 +172,6 @@ def linear_regression(df, predictor_name, response, stats_table):
         title=f"Variable: {predictor_name}: (t-value={t_value}) (p-value={p_value})",
         xaxis_title=f"Variable: {predictor_name}",
         yaxis_title="y",
-
     )
 
     fig.show()
@@ -234,8 +243,8 @@ def main():
         else:
             linear_regression(dataframe, predictor, response, stats_table)
 
-# separate data and target for random forest
-# step 7. Random Forest Variable importance ranking (continuous predictors only)
+    # separate data and target for random forest
+    # step 7. Random Forest Variable importance ranking (continuous predictors only)
     X = dataframe.drop(response, axis=1)
     y = dataframe[response]
 
@@ -247,7 +256,7 @@ def main():
     ).sort_values("importance", ascending=True)
     print(feature_importance)
 
-# step 8. Generate a table with all the variables and their rankings
+    # step 8. Generate a table with all the variables and their rankings
     html_table = pd.concat([html_table, feature_importance, stats_table], axis=1)
     html = html_table.to_html()
 

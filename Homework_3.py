@@ -34,13 +34,13 @@ Input_Table.show()
 
 Input_Table.persist(StorageLevel.DISK_ONLY)
 
-rollingAvg = spark.sql("""SELECT *, AVG(Hit/atBat) OVER(
+rollingAvg = spark.sql(
+    """SELECT *, AVG(Hit/atBat) OVER(
                                     PARTITION BY batter
                                     ORDER BY local_date
                                     ROWS BETWEEN 99 PRECEDING AND CURRENT ROW
                                     )
                                 AS 100_days_rolling_average
-                                FROM Input_Table""")
+                                FROM Input_Table"""
+)
 rollingAvg.show()
-
-
