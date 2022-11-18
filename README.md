@@ -20,4 +20,4 @@
 # Run `pre-commit` locally.
 
 `pre-commit run --all-files`
- end of file
+end of file
