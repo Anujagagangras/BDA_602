@@ -36,7 +36,7 @@ def make_clickable(val):
 
 def main():
     db_user = "root"
-    db_pass = "Shekharr1986#"  # pragma: allowlist secret
+    db_pass = "  #"  # pragma: allowlist secret
     db_host = "localhost"
     db_database = "baseball"
     connect_string = (
