@@ -1,0 +1,27 @@
+version: "3.1"
+services:
+  mariadb:
+    image: linuxserver/mariadb:latest
+    container_name: mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ALLOW_EMPTY_PASSWORD="true"
+    volumes:
+      - ./db:/var/lib/mysql/
+    ports:
+      - 3307:3307 
+    expose:
+      - "3307"
+    restart: unless-stopped
+  homework_6-rollingaverage:
+    container_name: homework_6-rollingaverage
+    depends_on:
+      - mariadb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./results:/results
+    image: homework_6-rollingaverage
+   
