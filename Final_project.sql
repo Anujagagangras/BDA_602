@@ -1,14 +1,12 @@
--- Command for Mariadb to use baseball database for the queries below.
+
 USE baseball;
 
-
--- Fix the column type issue on it, so the id is sorting as integer.
 ALTER TABLE inning MODIFY COLUMN game_id INT UNSIGNED NOT NULL;
 
--- one game has impossible data for the temperature, not taking this game to consideration
+## one game has impossible data for the temperature, not taking this game to consideration
 DELETE FROM boxscore WHERE temp ='7882 degrees';
 
--- HomeTeamWins table: 1 as home team win, 0 as home team lose
+## response variable from boxscore table
 DROP TABLE IF EXISTS game_info;
 CREATE TABLE game_info
 SELECT game_id,
@@ -22,8 +20,7 @@ FROM boxscore;
 
 CREATE INDEX game_info_index ON game_info (game_id);
 
-
--- Select columns needed from game table
+## Select columns needed from game table
 DROP TABLE IF EXISTS game_date;
 CREATE TABLE game_date
 SELECT game_id,
@@ -32,7 +29,7 @@ FROM game;
 
 CREATE INDEX game_date_index ON game_date (game_id);
 
--- Select columns needed from team_pitching_counts [Home Team]
+## Select columns needed from team_pitching_counts [Home Team]
 DROP TABLE IF EXISTS ht_pitching_data;
 CREATE TABLE ht_pitching_data
 SELECT t.game_id,
@@ -115,7 +112,7 @@ CREATE UNIQUE INDEX at_batting_data_index
 ON at_batting_data (game_id, team_id);
 CREATE INDEX at_id_index ON at_batting_data (game_id);
 
--- Select columns needed from team_pitching_counts [Away Team]
+## Select columns needed from team_pitching_counts [Away Team]
 DROP TABLE IF EXISTS at_pitching_data;
 CREATE TABLE at_pitching_data
 SELECT t.game_id,
@@ -152,7 +149,7 @@ ON at_pitching_data (game_id, away_team);
 CREATE INDEX at_id_index ON at_pitching_data (game_id);
 
 
--- joint home/away pitching team table
+## join home/away pitching team table
 DROP TABLE IF EXISTS ha_pitching_joint;
 CREATE TABLE ha_pitching_joint
 SELECT h.game_id,
@@ -201,7 +198,7 @@ CREATE INDEX ha_id_index ON ha_pitching_joint (game_id);
 CREATE INDEX ha_d_index ON ha_pitching_joint (local_date);
 
 
--- joint home/away batting team table
+## join home/away batting team table
 DROP TABLE IF EXISTS ha_batting_joint;
 CREATE TABLE ha_batting_joint
 SELECT HT.game_id,

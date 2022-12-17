@@ -7,3 +7,5 @@ pyspark
 pyspark-stubs
 plotly.express
 statsmodels
+sqlalchemy
+matplotlib
