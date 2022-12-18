@@ -1,0 +1,27 @@
+version: "3.1"
+services:
+  mariadb:
+    image: linuxserver/mariadb:latest
+    container_name: mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ALLOW_EMPTY_PASSWORD="true"
+    volumes:
+      - ./db:/var/lib/mysql/
+    ports:
+      - 3307:3307 
+    expose:
+      - "3307"
+    restart: unless-stopped
+  baseball:
+    container_name: baseball
+    depends_on:
+      - mariadb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./results:/app/results
+    image: baseball
+   

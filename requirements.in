@@ -1,11 +1,10 @@
 numpy
 pandas
 plotly
-sklearn
+scikit-learn
 mariadb
-pyspark
-pyspark-stubs
 plotly.express
 statsmodels
 sqlalchemy
+seaborn
 matplotlib
